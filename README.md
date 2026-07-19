@@ -1,4 +1,7 @@
 # 💳 Credit Risk Scorecard & Loan Default Prediction
+
+An interactive Power BI dashboard built using Pandas, SQL, and Power BI to analyze credit risk and loan default patterns, evaluate borrower profiles, identify key risk factors, and support data-driven lending decisions through actionable insights.
+
 ---
 ## 📌 Project Overview
 
