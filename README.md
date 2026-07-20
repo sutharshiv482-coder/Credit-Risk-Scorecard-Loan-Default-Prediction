@@ -26,4 +26,7 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - Financial institutions process thousands of loan applications, making it difficult to identify high-risk borrowers. Without proper analysis, they may approve risky loans, leading to higher default rates and financial losses. This project analyzes loan data to identify risk factors and support better lending decisions.
   
 ## ❓ Key Business Quetions
-- 
+- Identify the overall loan default rate for each loan purpose.
+- Analyze how loan default risk changes across different credit score bands.
+- Detect duplicate loan applications that may indicate potential fraud.
+  
