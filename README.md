@@ -8,3 +8,22 @@ An interactive Power BI dashboard built using Pandas, SQL, and Power BI to analy
 This project analyzes credit risk and loan default patterns using Pandas, SQL, and Power BI to identify high-risk borrowers, evaluate key financial and demographic factors, and provide interactive insights that support data-driven lending decisions, minimize default risk, and improve overall portfolio performance.
 
 ---
+# 📌 Business KPIs
+
+---
+# 🛠️ Tools Used
+
+| Tool | Purpose |
+|------|----------|
+| Python (Pandas) | Data cleaning and preprocessing |
+| SQL | Business analysis and querying |
+| Power BI | Dashboard development and visualization |
+| Jupyter Notebook | Data exploration and analysis |
+
+---
+
+## 🎯 Business Problem
+- Financial institutions process thousands of loan applications, making it difficult to identify high-risk borrowers. Without proper analysis, they may approve risky loans, leading to higher default rates and financial losses. This project analyzes loan data to identify risk factors and support better lending decisions.
+  
+## ❓ Key Business Quetions
+- 
