@@ -29,4 +29,18 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - Identify the overall loan default rate for each loan purpose.
 - Analyze how loan default risk changes across different credit score bands.
 - Detect duplicate loan applications that may indicate potential fraud.
-  
+
+---
+## 🛠️ Tools Used
++ Python (Pandas)
++ SQL
++ Power BI
++ Jupyter Notebook
+---
+# 🧹 Data Cleaning & Preprocessing
+
+- 
+
+> ✨ Clean data is the foundation of reliable financial analysis and informed investment decisions.
+
+---
