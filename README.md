@@ -29,6 +29,8 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - Identify the overall loan default rate for each loan purpose.
 - Analyze how loan default risk changes across different credit score bands.
 - Detect duplicate loan applications that may indicate potential fraud.
+- Compare average loan amount and customer income across different age groups.
+- Identify high-value loans with a high risk of default for closer monitoring.
 
 ---
 ## 🛠️ Tools Used
