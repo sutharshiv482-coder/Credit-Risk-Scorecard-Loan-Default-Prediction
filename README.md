@@ -41,7 +41,7 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 ---
 # 🧹 Data Cleaning & Preprocessing
 
-- - Loaded the dataset using Pandas.
+- Loaded the dataset using Pandas.
 - Removed empty columns and duplicate records.
 - Trimmed extra spaces from text values.
 
