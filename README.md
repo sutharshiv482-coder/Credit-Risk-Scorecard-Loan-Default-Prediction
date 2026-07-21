@@ -46,5 +46,10 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - Trimmed extra spaces from text values.
 
 > ✨ Clean data is the foundation of reliable financial analysis and informed investment decisions.
+---
+
+## 📈 Key Insights
+
+-
 
 ---
