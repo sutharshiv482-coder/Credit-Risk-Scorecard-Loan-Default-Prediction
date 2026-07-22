@@ -46,6 +46,8 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - Loaded the dataset using Pandas.
 - Removed empty columns and duplicate records.
 - Trimmed extra spaces from text values.
+- Standardized gender, loan purpose, and loan default values.
+- Removed currency symbols and corrected data types.
 
 > ✨ Clean data is the foundation of reliable financial analysis and informed investment decisions.
 ---
