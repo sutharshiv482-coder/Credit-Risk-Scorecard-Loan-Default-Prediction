@@ -57,3 +57,14 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 -
 
 ---
+## 📊 Dashboard Preview
+
+*(
+)*
+
+# ⚙️ Dashboard Features
+
+- 
+
+---
+
