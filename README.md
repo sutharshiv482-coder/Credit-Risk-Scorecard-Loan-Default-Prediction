@@ -31,6 +31,8 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - Detect duplicate loan applications that may indicate potential fraud.
 - Compare average loan amount and customer income across different age groups.
 - Identify high-value loans with a high risk of default for closer monitoring.
+- Determine whether customer income is a significant predictor of loan default.
+- Analyze how different Debt-to-Income (DTI) ratio thresholds affect default risk.
 
 ---
 ## 🛠️ Tools Used
