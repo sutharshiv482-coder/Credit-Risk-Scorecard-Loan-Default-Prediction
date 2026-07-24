@@ -56,7 +56,8 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 
 ## 📈 Key Insights
 
--
+- Home Loan has the highest default rate at 29.70%, followed by Education (27.85%), Business (25.88%), Personal Loan (23.66%), and Car Loan (22.06%). This indicates that Home Loans carry the highest risk and may require stricter credit evaluation before approval.
+- 
 
 ---
 ## 📊 Dashboard Preview
