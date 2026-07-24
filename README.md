@@ -56,8 +56,8 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 
 ## 📈 Key Insights
 
-- Home Loan has the highest default rate at 29.70%, followed by Education (27.85%), Business (25.88%), Personal Loan (23.66%), and Car Loan (22.06%). This indicates that Home Loans carry the highest risk and may require stricter credit evaluation before approval.
-- 
+- **Home Loan** has the **highest default rate at 29.70%**, followed by **Education (27.85%)**, **Business (25.88%)**,**Personal Loan (23.66%)**, and **Car Loan (22.06%)**. This indicates that Home Loans carry the highest risk and may require stricter credit evaluation before approval.
+- The highest default rate is in the **800+ (Excellent)** credit score band **(36.59%)**, followed by **580–669 (Fair) (31.16%)**, **670–739 (Good) (26.42%)**, **740–799 (Very Good) (25.58%)**, and Below **580 (Poor) (19.07%)**. This pattern is unusual because borrowers with higher credit scores normally have lower default rates. The results suggest that the credit score data or score band classification should be reviewed before using it for lending decisions.
 
 ---
 ## 📊 Dashboard Preview
