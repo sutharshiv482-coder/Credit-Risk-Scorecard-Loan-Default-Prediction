@@ -59,6 +59,7 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - **Home Loan** has the **highest default rate at 29.70%**, followed by **Education (27.85%)**, **Business (25.88%)**,**Personal Loan (23.66%)**, and **Car Loan (22.06%)**. This indicates that Home Loans carry the highest risk and may require stricter credit evaluation before approval.
 - The highest default rate is in the **800+ (Excellent)** credit score band **(36.59%)**, followed by **580–669 (Fair) (31.16%)**, **670–739 (Good) (26.42%)**, **740–799 (Very Good) (25.58%)**, and Below **580 (Poor) (19.07%)**. This pattern is unusual because borrowers with higher credit scores normally have lower default rates. The results suggest that the credit score data or score band classification should be reviewed before using it for lending decisions.
 - The dataset contains **11 duplicate loan applications**, where the same customer submitted two applications. These records should be reviewed to avoid duplicate processing, improve data quality, and identify potential fraud.
+- The **25–34 age** group has the highest average loan amount **(89,394.17)**, while the **35–44 age** group has the highest average income **(44,214.80)**. Overall, income is similar across age groups, but borrowers aged **25–34** take larger loans.
 
 ---
 ## 📊 Dashboard Preview
