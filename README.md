@@ -26,13 +26,13 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - Financial institutions process thousands of loan applications, making it difficult to identify high-risk borrowers. Without proper analysis, they may approve risky loans, leading to higher default rates and financial losses. This project analyzes loan data to identify risk factors and support better lending decisions.
   
 ## ❓ Key Business Quetions
-- Identify the overall loan default rate for each loan purpose.
-- Analyze how loan default risk changes across different credit score bands.
-- Detect duplicate loan applications that may indicate potential fraud.
-- Compare average loan amount and customer income across different age groups.
-- Identify high-value loans with a high risk of default for closer monitoring.
-- Determine whether customer income is a significant predictor of loan default.
-- Analyze how different Debt-to-Income (DTI) ratio thresholds affect default risk.
+- Which loan purpose has the highest default rate?
+- How does the default rate change across different credit score bands?
+- Are there any duplicate loan applications in the dataset?
+- How do average loan amount and average income differ by age group?
+- Which customers have high loan amounts and are at high risk of default?
+- Does borrower income affect the loan default rate?
+- How does the Debt-to-Income (DTI) ratio affect the loan default rate?
 
 ---
 ## 🛠️ Tools Used
