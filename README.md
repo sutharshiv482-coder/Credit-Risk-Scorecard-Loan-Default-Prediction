@@ -60,6 +60,7 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - The highest default rate is in the **800+ (Excellent)** credit score band **(36.59%)**, followed by **580–669 (Fair) (31.16%)**, **670–739 (Good) (26.42%)**, **740–799 (Very Good) (25.58%)**, and Below **580 (Poor) (19.07%)**. This pattern is unusual because borrowers with higher credit scores normally have lower default rates. The results suggest that the credit score data or score band classification should be reviewed before using it for lending decisions.
 - The dataset contains **11 duplicate loan applications**, where the same customer submitted two applications. These records should be reviewed to avoid duplicate processing, improve data quality, and identify potential fraud.
 - The **25–34 age** group has the highest average loan amount **(89,394.17)**, while the **35–44 age** group has the highest average income **(44,214.80)**. Overall, income is similar across age groups, but borrowers aged **25–34** take larger loans.
+- The dataset contains **100 customers** with loan amounts above **₹50K** who are at high risk of default. The highest loan amount is **₹79,910 (CUST0442)**, and the lowest credit score is **300 (CUST0029)**. Two duplicate records **(CUST0170 and CUST0382)** should be removed to ensure accurate analysis.
 
 ---
 ## 📊 Dashboard Preview
