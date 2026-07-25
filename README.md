@@ -62,6 +62,7 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - The dataset contains **11 duplicate loan applications**, where the same customer submitted two applications. These records should be reviewed to avoid duplicate processing, improve data quality, and identify potential fraud.
 - The **25–34 age** group has the highest average loan amount **(89,394.17)**, while the **35–44 age** group has the highest average income **(44,214.80)**. Overall, income is similar across age groups, but borrowers aged **25–34** take larger loans.
 - The dataset contains **100 customers** with loan amounts above **₹50K** who are at high risk of default. The highest loan amount is **₹79,910 (CUST0442)**, and the lowest credit score is **300 (CUST0029)**. Two duplicate records **(CUST0170 and CUST0382)** should be removed to ensure accurate analysis.
+- Borrower income does not appear to affect the loan default rate in this dataset. All income groups have a **0% default rate**, so no relationship between income and loan defaults is observed.
 
 ---
 ## 📊 Dashboard Preview
