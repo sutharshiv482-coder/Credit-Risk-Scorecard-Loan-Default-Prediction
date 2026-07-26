@@ -64,6 +64,7 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 - The dataset contains **100 customers** with loan amounts above **₹50K** who are at high risk of default. The highest loan amount is **₹79,910 (CUST0442)**, and the lowest credit score is **300 (CUST0029)**. Two duplicate records **(CUST0170 and CUST0382)** should be removed to ensure accurate analysis.
 - Borrower income does not appear to affect the loan default rate in this dataset. All income groups have a **0% default rate**, so no relationship between income and loan defaults is observed.
 - The Debt-to-Income (DTI) ratio does not appear to affect the loan default rate in this dataset. All DTI groups have a **0% default rate**, so no relationship between DTI ratio and loan defaults is observed.
+- The **top 10 highest-risk customers** have loan amounts between **₹77,274** and **₹79,910**, with credit scores ranging from **330 to 525**. These customers should be prioritized for detailed credit review and closer monitoring before loan approval to reduce default risk.
 
 ---
 ## 📊 Dashboard Preview
