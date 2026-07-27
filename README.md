@@ -34,6 +34,7 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 6. Does borrower income affect the loan default rate?
 7. How does the Debt-to-Income (DTI) ratio affect the loan default rate?
 8. Who are the top 10 highest-risk customers based on a combined risk score?
+9. What data quality issues exist in the dataset before building a prediction model?
 
 ---
 ## 🛠️ Tools Used
