@@ -9,7 +9,10 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 
 ---
 # 📌 Business KPIs
-
+- 📊 Total Loan Applications
+- ⚠️ Default Rate (%)
+- 💰 Total Loan Amount
+- ⭐ Average Credit Score
 ---
 # 🛠️ Tools Used
 
