@@ -20,7 +20,7 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 |------|----------|
 | Python (Pandas) | Data cleaning and preprocessing |
 | SQL | Business analysis and querying |
-| Power BI | Dashboard development and visualization |
+| Web-Based Dashboard | Dashboard development and visualization |
 | Jupyter Notebook | Data exploration and analysis |
 
 ---
