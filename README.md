@@ -1,13 +1,39 @@
 # 💳 Credit Risk Scorecard & Loan Default Prediction
 
-An interactive Power BI dashboard built using Pandas, SQL, and Power BI to analyze credit risk and loan default patterns, evaluate borrower profiles, identify key risk factors, and support data-driven lending decisions through actionable insights.
+An interactive **Credit Risk Analytics Dashboard** built using **Python (Pandas), SQL, and Web-Based Dashboard** to analyze loan default patterns, evaluate borrower risk, identify high-risk customers, and support data-driven lending decisions. The project transforms raw loan data into actionable insights that help financial institutions minimize credit risk, improve loan approval strategies, and strengthen portfolio performance.
 
 ---
-## 📌 Project Overview
+# 🎯 Project Objective
 
-This project analyzes credit risk and loan default patterns using Pandas, SQL, and Power BI to identify high-risk borrowers, evaluate key financial and demographic factors, and provide interactive insights that support data-driven lending decisions, minimize default risk, and improve overall portfolio performance.
+Develop an end-to-end credit risk analytics solution to:
+
+- Analyze loan default patterns across different borrower segments.
+- Identify high-risk customers before loan approval.
+- Evaluate financial and demographic risk factors.
+- Monitor lending KPIs through an interactive dashboard.
+- Support smarter, data-driven credit and lending decisions.
 
 ---
+
+# 💼 Business Value
+
+Financial institutions process thousands of loan applications every day. Without effective risk analysis, lenders may approve high-risk borrowers, resulting in increased defaults and financial losses. This dashboard enables credit teams to identify risk patterns, improve loan approval decisions, reduce default exposure, and enhance portfolio quality using data-driven insights.
+
+---
+# ❓ Business Questions
+
+- Which loan purpose has the highest default rate?
+- How does default risk vary across different credit score bands?
+- Are duplicate loan applications present in the dataset?
+- How do average loan amount and borrower income differ across age groups?
+- Which customers combine high loan amounts with elevated credit risk?
+- Does borrower income influence loan default?
+- How does the Debt-to-Income (DTI) ratio impact default risk?
+- Who are the top 10 highest-risk customers based on a combined risk score?
+- What data quality issues should be resolved before predictive modeling?
+
+---
+
 # 📌 Business KPIs
 - 📊 Total Loan Applications
 - ⚠️ Default Rate (%)
@@ -25,21 +51,6 @@ This project analyzes credit risk and loan default patterns using Pandas, SQL, a
 
 ---
 
-## 🎯 Business Problem
-- Financial institutions process thousands of loan applications, making it difficult to identify high-risk borrowers. Without proper analysis, they may approve risky loans, leading to higher default rates and financial losses. This project analyzes loan data to identify risk factors and support better lending decisions.
-  
-## ❓ Key Business Quetions
-1. Which loan purpose has the highest default rate?
-2. How does the default rate change across different credit score bands?
-3. Are there any duplicate loan applications in the dataset?
-4. How do average loan amount and average income differ by age group?
-5. Which customers have high loan amounts and are at high risk of default?
-6. Does borrower income affect the loan default rate?
-7. How does the Debt-to-Income (DTI) ratio affect the loan default rate?
-8. Who are the top 10 highest-risk customers based on a combined risk score?
-9. What data quality issues exist in the dataset before building a prediction model?
-
----
 ## 🛠️ Tools Used
 + Python (Pandas)
 + SQL
