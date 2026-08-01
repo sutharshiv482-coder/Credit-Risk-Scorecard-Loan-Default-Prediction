@@ -85,8 +85,7 @@ Financial institutions process thousands of loan applications every day. Without
 ---
 ## 📊 Dashboard Preview
 
-*(
-)*
+(https://github.com/sutharshiv482-coder/Credit-Risk-Scorecard-Loan-Default-Prediction/blob/main/Credit%20Risk%20Dashboard%20-%20Google%20Chrome%2001-08-2026%2010_47_07.png)
 
 # ⚙️ Dashboard Features
 
