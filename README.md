@@ -56,12 +56,18 @@ Financial institutions process thousands of loan applications every day. Without
 | **Jupyter Notebook** | Data exploration and analysis |
 
 ---
-## 🛠️ Tools Used
-+ Python (Pandas)
-+ SQL
-+ Power BI
-+ Jupyter Notebook
+
+## 🛠️ Tools & Technologies
+
+- Python (Pandas)
+- SQL
+- Plotly
+- Dash (Plotly Dash)
+- HTML & CSS
+- Jupyter Notebook
+
 ---
+
 # 🔄 Project Methodology
 
 ### 1️⃣ Data Preparation
