@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Credit Risk Dashboard</title>
+<style>
+  :root{
+    --blue:#2563EB; --teal:#14B8A6; --amber:#F59E0B; --violet:#8B5CF6; --red:#EF4444; --green:#10B981;
+    --ink:#0F172A; --muted:#64748B; --faint:#94A3B8; --bg:#F4F6FA; --line:#EEF1F6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:#DCE1E9; font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+    display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
+  }
+  .canvas-wrap{ width:1366px; height:768px; background:var(--bg); border-radius:6px; box-shadow:0 8px 30px rgba(15,23,42,0.25);
+    padding:12px; display:flex; flex-direction:column; gap:10px; color:var(--ink); }
+  .card{ background:#fff; border-radius:10px; box-shadow:0 1px 3px rgba(15,23,42,0.08); border:1px solid var(--line); }
+  .header{ height:46px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; flex-shrink:0; }
+  .header-left{ display:flex; align-items:center; gap:10px; }
+  .logo-bar{ width:10px; height:26px; border-radius:3px; background:linear-gradient(180deg,var(--red),var(--amber)); }
+  .title{ font-size:16px; font-weight:700; line-height:1.1; }
+  .subtitle{ font-size:10px; color:var(--muted); margin-top:2px; }
+  .header-right{ display:flex; align-items:center; gap:8px; }
+  .badge{ font-size:10px; color:var(--faint); background:#F1F5F9; padding:5px 10px; border-radius:6px; font-weight:600; }
+  .clear-btn{ font-size:11px; cursor:pointer; color:var(--blue); border:1px solid #DBEAFE; background:#EFF6FF; padding:5px 10px; border-radius:6px; display:none; align-items:center; gap:4px; font-weight:600; }
+  .clear-btn.show{ display:flex; }
+  .body-row{ flex:1; display:flex; gap:10px; min-height:0; }
+  .filters{ width:172px; padding:14px; display:flex; flex-direction:column; gap:16px; flex-shrink:0; overflow-y:auto; }
+  .filters-title{ display:flex; align-items:center; gap:6px; font-weight:700; font-size:12px; letter-spacing:0.4px; }
+  .section-label{ font-size:10px; font-weight:700; color:var(--faint); margin-bottom:6px; letter-spacing:0.5px; }
+  .pill-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .pill{ font-size:10.5px; padding:4px 9px; border-radius:20px; cursor:pointer; font-weight:600; background:#F1F5F9; color:var(--muted); user-select:none; }
+  .pill.active{ color:#fff; }
+  .segmented{ display:flex; background:#F1F5F9; border-radius:8px; padding:3px; }
+  .seg-btn{ flex:1; text-align:center; font-size:10px; font-weight:700; padding:5px 0; border-radius:6px; cursor:pointer; color:var(--faint); user-select:none; }
+  .seg-btn.active{ background:#fff; color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,0.1); }
+  .check-row{ display:flex; align-items:center; gap:7px; cursor:pointer; font-size:11px; color:#334155; font-weight:500; margin-bottom:5px; user-select:none; }
+  .check-box{ width:13px; height:13px; border-radius:4px; border:1.5px solid #CBD5E1; flex-shrink:0; }
+  .check-box.on{ border:none; }
+  .crossfilter-chip{ font-size:10.5px; background:#FEF2F2; color:var(--red); padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:600; margin-bottom:5px; }
+  .hint{ margin-top:auto; font-size:9.5px; color:#B0B8C4; line-height:1.4; }
+  .main{ flex:1; display:flex; flex-direction:column; gap:10px; min-height:0; }
+  .kpi-row{ display:flex; gap:10px; height:92px; flex-shrink:0; }
+  .kpi-card{ flex:1; padding:12px 14px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
+  .kpi-accent{ position:absolute; left:0; top:0; bottom:0; width:4px; }
+  .kpi-top{ display:flex; align-items:center; justify-content:space-between; }
+  .kpi-label{ font-size:10.5px; color:var(--muted); font-weight:600; }
+  .kpi-icon{ width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:13px; }
+  .kpi-value{ font-size:21px; font-weight:800; color:var(--ink); }
+  .charts-grid{ flex:1; display:grid; grid-template-columns:1.3fr 1fr; grid-template-rows:1fr 1fr; gap:10px; min-height:0; }
+  .chart-card{ padding:10px 14px 6px; display:flex; flex-direction:column; min-height:0; }
+  .chart-title{ font-size:11.5px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+  .chart-title small{ font-weight:400; color:var(--faint); }
+  .chart-holder{ flex:1; min-height:0; position:relative; }
+  .chart-holder svg{ width:100%; height:100%; display:block; overflow:visible; }
+  .viz-tip{ position:fixed; pointer-events:none; background:#0F172A; color:#fff; font-size:11px; font-weight:600;
+    padding:5px 9px; border-radius:6px; z-index:50; opacity:0; transition:opacity .08s; white-space:nowrap; }
+  .viz-tip.show{ opacity:1; }
+  .bar-shape{ cursor:pointer; }
+  .axis-text{ font-size:9.5px; fill:#94A3B8; font-family:"Segoe UI",-apple-system,sans-serif; }
+  .cat-text{ font-size:9.5px; fill:#334155; font-family:"Segoe UI",-apple-system,sans-serif; }
+  .insights{ height:76px; padding:10px 14px; display:flex; gap:10px; flex-shrink:0; }
+  .insights-label{ display:flex; align-items:center; gap:6px; padding-right:10px; border-right:1px solid var(--line); flex-shrink:0; font-size:11px; font-weight:700; }
+  .insight-item{ flex:1; display:flex; align-items:center; gap:8px; background:#F8FAFC; border-radius:8px; padding:0 10px; }
+  .insight-emoji{ font-size:15px; }
+  .insight-text{ font-size:10.5px; color:#334155; line-height:1.3; font-weight:500; }
+</style>
+</head>
+<body>
+
+<div class="canvas-wrap">
+  <div class="card header">
+    <div class="header-left">
+      <div class="logo-bar"></div>
+      <div>
+        <div class="title">Credit Risk Dashboard</div>
+        <div class="subtitle" id="subtitleText">511 customers &middot; 25.0% overall default rate</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="clear-btn" id="clearBtn">&#10005; Clear filters (<span id="filterCount">0</span>)</div>
+      <div class="badge">Loan Portfolio Snapshot</div>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <div class="card filters">
+      <div class="filters-title">&#9881; FILTERS</div>
+
+      <div>
+        <div class="section-label">CREDIT SCORE BAND</div>
+        <div class="pill-row" id="bandPills"></div>
+      </div>
+
+      <div>
+        <div class="section-label">GENDER</div>
+        <div class="segmented" id="genderSeg">
+          <div class="seg-btn active" data-g="ALL">ALL</div>
+          <div class="seg-btn" data-g="Male">MALE</div>
+          <div class="seg-btn" data-g="Female">FEMALE</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">LOAN PURPOSE</div>
+        <div id="purposeChecks"></div>
+      </div>
+
+      <div id="crossFilterSection" style="display:none;">
+        <div class="section-label">CROSS-FILTER</div>
+        <div id="crossFilterChips"></div>
+      </div>
+
+      <div class="hint">Click an age-group bar to cross-filter the whole page.</div>
+    </div>
+
+    <div class="main">
+      <div class="kpi-row" id="kpiRow"></div>
+
+      <div class="charts-grid">
+        <div class="card chart-card">
+          <div class="chart-title">Default Rate by Credit Score Band</div>
+          <div class="chart-holder" id="bandChart"></div>
+        </div>
+        <div class="card chart-card">
+          <div class="chart-title">Loan Portfolio Mix</div>
+          <div class="chart-holder" id="purposeDonut"></div>
+        </div>
+        <div class="card chart-card">
+          <div class="chart-title">Default Rate by Age Group <small>(click to filter)</small></div>
+          <div class="chart-holder" id="ageChart"></div>
+        </div>
+        <div class="card chart-card">
+          <div class="chart-title">Income vs Loan Amount <small>(red = defaulted)</small></div>
+          <div class="chart-holder" id="scatterChart"></div>
+        </div>
+      </div>
+
+      <div class="card insights" id="insightsRow">
+        <div class="insights-label">KEY<br/>INSIGHTS</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="viz-tip" id="vizTip"></div>
+
+<script>
+/* ---------------- Data (from credit_risk_clean.csv) ---------------- */
+/* ROW: [age, gender, income, loanAmount, creditScore, tenureMonths, employmentYears, purpose, default] */
+const ROWS = [[64,"Male",72224,51197,584,45,17,"Home Loan",1],[44,"Male",78243,54481,837,10,2,"Education",1],[60,"Female",27357,78794,525,21,17,"Home Loan",0],[44,"Female",97709,45809,612,6,12,"Home Loan",1],[44,"Male",76720,60961,759,10,4,"Home Loan",0],[46,"Female",97052,78698,330,46,10,"Personal Loan",0],[45,"Female",117007,57853,405,7,10,"Education",0],[45,"Male",136664,72364,576,37,8,"Business Loan",1],[32,"Male",64811,31069,542,32,13,"Car Loan",0],[30,"Female",62348,44711,747,27,18,"Education",1],[32,"Female",56208,17910,792,42,7,"Personal Loan",0],[61,"Male",66540,35678,587,34,14,"Car Loan",1],[46,"Male",68136,47929,655,8,19,"Personal Loan",0],[51,"Female",41949,38572,777,44,13,"Business Loan",0],[56,"Male",62944,28752,528,19,7,"Home Loan",1],[50,"Female",76720,56184,590,59,2,"Business Loan",1],[36,"Female",85510,9632,601,29,16,"Car Loan",1],[60,"Male",149695,60318,383,21,16,"Car Loan",0],[54,"Female",24158,17342,600,33,16,"Car Loan",0],[57,"Male",76720,5806,820,54,7,"Car Loan",0],[60,"Female",148077,78543,716,56,13,"Car Loan",0],[25,"Male",72796,25662,592,13,3,"Car Loan",0],[55,"Female",126995,77101,766,28,10,"Personal Loan",0],[23,"Male",48016,25103,374,26,12,"Personal Loan",0],[23,"Male",57441,21725,584,18,1,"Business Loan",1],[23,"Male",136868,64129,516,34,19,"Business Loan",1],[60,"Male",72638,18718,677,31,13,"Personal Loan",0],[38,"Female",113105,35523,557,32,16,"Education",0],[47,"Male",76720,44224,573,47,3,"Home Loan",1],[61,"Male",47532,26566,604,59,1,"Car Loan",0],[37,"Male",109930,41258,652,45,4,"Car Loan",0],[23,"Male",76720,6828,615,59,8,"Business Loan",1],[24,"Female",127892,27116,452,23,10,"Car Loan",0],[50,"Male",93553,34373,810,41,8,"Home Loan",0],[37,"Male",36779,32446,459,39,18,"Personal Loan",1],[45,"Male",123150,17219,644,38,14,"Car Loan",0],[38,"Female",85215,51828,604,26,0,"Car Loan",0],[44,"Female",58102,68076,635,50,18,"Home Loan",0],[41,"Female",77043,51163,389,23,3,"Home Loan",0],[38,"Male",76720,6645,754,40,9,"Personal Loan",1],[33,"Male",145646,79859,635,9,13,"Education",1],[43,"Male",33456,41220,584,14,9,"Home Loan",0],[26,"Female",81529,13666,401,12,14,"Personal Loan",0],[46,"Male",84895,18234,469,12,0,"Car Loan",0],[47,"Female",107044,60761,401,22,13,"Car Loan",0],[63,"Male",149473,64676,584,8,0,"Home Loan",1],[49,"Male",57744,68197,825,22,17,"Personal Loan",0],[60,"Female",143961,69484,306,25,13,"Personal Loan",0],[50,"Male",102873,13567,721,13,2,"Education",0],[45,"Female",82680,45806,542,18,6,"Business Loan",0],[29,"Female",96539,42219,570,55,2,"Car Loan",0],[38,"Female",38030,15616,584,37,4,"Car Loan",0],[32,"Female",82856,63596,655,49,19,"Car Loan",0],[46,"Male",28702,73836,358,7,8,"Home Loan",0],[37,"Female",24432,28510,599,45,7,"Car Loan",0],[23,"Male",88866,52523,572,27,12,"Education",0],[33,"Male",35034,78972,405,58,10,"Car Loan",0],[29,"Male",117239,29762,505,57,11,"Education",1],[40,"Female",125616,15395,415,40,11,"Car Loan",1],[31,"Male",134049,50084,838,45,15,"Home Loan",0],[63,"Male",26941,41397,592,22,19,"Car Loan",0],[54,"Female",52201,58394,634,6,10,"Home Loan",0],[42,"Male",122634,31614,391,41,18,"Home Loan",0],[48,"Male",65106,47880,829,21,8,"Business Loan",1],[51,"Female",134821,44666,681,44,18,"Car Loan",1],[35,"Female",137611,72506,623,41,19,"Business Loan",0],[29,"Male",29348,13512,515,37,10,"Car Loan",1],[55,"Female",76720,20358,819,9,14,"Personal Loan",0],[31,"Male",41689,14865,622,24,16,"Car Loan",1],[22,"Male",61240,6341,446,28,3,"Car Loan",1],[37,"Female",53307,75507,700,57,13,"Business Loan",0],[45,"Male",92267,5235,469,41,3,"Education",1],[24,"Male",127892,27116,452,23,10,"Car Loan",0],[100,"Male",76720,9324,628,22,14,"Home Loan",1],[62,"Male",43625,72444,490,14,9,"Education",0],[30,"Female",21542,41159,725,9,9,"Personal Loan",0],[45,"Male",76720,61793,739,20,2,"Home Loan",1],[45,"Male",40150,78479,665,9,13,"Car Loan",0],[42,"Male",66959,63656,584,15,14,"Personal Loan",0],[39,"Female",60943,29160,392,36,1,"Personal Loan",0],[46,"Female",69407,38719,669,21,5,"Car Loan",0],[23,"Male",61555,33024,820,41,17,"Car Loan",0],[23,"Male",147858,17984,301,36,4,"Education",0],[44,"Female",59811,72298,484,47,8,"Education",0],[22,"Female",30975,16694,694,17,19,"Car Loan",0],[45,"Female",131888,39529,816,30,1,"Business Loan",0],[35,"Male",43061,75342,696,36,2,"Business Loan",1],[61,"Male",53434,17254,368,13,8,"Business Loan",0],[24,"Female",88450,67981,517,41,10,"Business Loan",1],[51,"Male",95672,7717,383,57,1,"Personal Loan",0],[25,"Male",71934,5117,631,33,10,"Business Loan",0],[62,"Male",125977,38933,540,14,16,"Car Loan",0],[49,"Female",76720,35105,694,18,7,"Personal Loan",0],[56,"Male",144097,28930,523,13,13,"Business Loan",1],[50,"Male",52049,40367,365,33,0,"Home Loan",0],[63,"Male",33843,57329,729,7,13,"Home Loan",1],[58,"Female",43624,59237,401,35,10,"Education",0],[45,"Male",147449,53543,440,15,8,"Business Loan",0],[61,"Male",98587,52924,796,58,3,"Home Loan",1],[57,"Male",111865,46786,584,48,18,"Car Loan",0],[18,"Female",23709,49028,759,13,14,"Home Loan",1],[23,"Female",79494,34402,503,55,4,"Car Loan",0],[34,"Female",26254,50186,385,13,5,"Education",0],[44,"Male",45470,64201,837,28,4,"Business Loan",1],[25,"Male",89836,59912,307,15,10,"Personal Loan",1],[58,"Female",131195,32935,318,25,13,"Education",0],[30,"Male",21062,48001,417,49,14,"Car Loan",0],[35,"Female",43714,6342,446,44,15,"Personal Loan",0],[45,"Male",105392,17112,483,18,17,"Personal Loan",1],[56,"Male",81877,33529,383,57,17,"Personal Loan",0],[46,"Male",75479,20850,522,47,14,"Car Loan",0],[64,"Female",0,52304,593,46,10,"Car Loan",1],[45,"Male",76720,32632,608,32,11,"Car Loan",0],[45,"Male",64238,27180,432,28,15,"Home Loan",1],[26,"Male",48732,59756,388,50,17,"Car Loan",0],[43,"Female",76720,29058,794,54,10,"Business Loan",0],[48,"Female",114246,64379,419,47,5,"Car Loan",0],[32,"Male",87641,76315,739,37,4,"Education",0],[55,"Male",63221,22850,749,43,13,"Personal Loan",0],[36,"Male",72329,73247,515,46,15,"Car Loan",0],[63,"Male",43960,69772,429,25,18,"Home Loan",1],[43,"Male",134825,36987,584,26,18,"Business Loan",0],[22,"Female",66732,10951,662,54,13,"Car Loan",0],[27,"Female",78017,56920,530,42,2,"Car Loan",0],[47,"Female",45934,43709,319,40,5,"Car Loan",1],[28,"Male",76720,21032,549,28,18,"Education",0],[22,"Male",93686,74346,633,41,8,"Education",0],[33,"Male",90173,58302,575,45,2,"Home Loan",1],[33,"Male",145827,62134,584,49,19,"Education",0],[33,"Female",76720,20896,680,29,1,"Car Loan",1],[51,"Female",130448,22260,353,23,14,"Education",1],[22,"Male",0,77355,460,39,11,"Home Loan",1],[27,"Female",80566,6917,413,44,15,"Education",0],[27,"Female",39963,43890,477,22,16,"Car Loan",0],[41,"Female",76720,58002,850,9,14,"Car Loan",0],[48,"Female",99714,20317,726,8,10,"Personal Loan",1],[24,"Female",76720,61133,602,32,5,"Business Loan",0],[43,"Female",139180,76158,718,10,12,"Personal Loan",1],[57,"Female",25240,42265,627,15,6,"Personal Loan",0],[30,"Female",74098,5846,762,16,4,"Education",0],[28,"Female",103251,58276,497,58,10,"Car Loan",0],[41,"Male",131732,21478,838,13,10,"Car Loan",0],[45,"Male",76720,73904,686,8,9,"Business Loan",0],[48,"Female",73932,28236,320,38,14,"Personal Loan",0],[36,"Female",64482,14446,605,21,19,"Car Loan",0],[45,"Male",42574,24426,384,13,12,"Personal Loan",1],[36,"Male",83932,18046,419,38,6,"Business Loan",0],[56,"Female",109339,23381,577,57,3,"Car Loan",1],[39,"Male",142402,25806,308,41,8,"Business Loan",0],[53,"Male",126884,56693,723,27,10,"Car Loan",0],[52,"Male",30478,71150,753,52,8,"Education",0],[63,"Male",86703,25618,339,46,12,"Car Loan",0],[24,"Male",98752,32696,493,19,0,"Education",0],[33,"Male",70517,6605,789,55,11,"Home Loan",0],[23,"Female",75069,53447,558,15,17,"Car Loan",0],[45,"Male",141507,13070,600,35,19,"Car Loan",1],[52,"Female",76720,10287,588,43,10,"Car Loan",1],[37,"Female",84291,61846,642,14,8,"Home Loan",0],[41,"Female",82292,60168,823,37,2,"Home Loan",1],[45,"Female",21252,6622,575,44,0,"Education",0],[53,"Female",37640,49327,498,16,11,"Personal Loan",0],[54,"Male",103460,5077,824,3,2,"Education",1],[50,"Female",55854,60619,584,30,12,"Business Loan",1],[22,"Male",65445,46949,658,19,16,"Personal Loan",0],[54,"Female",20728,32285,319,38,18,"Home Loan",0],[58,"Female",28717,32788,623,55,1,"Personal Loan",1],[25,"Female",29860,59771,815,7,2,"Personal Loan",0],[60,"Female",54349,67823,616,38,10,"Home Loan",0],[42,"Male",108726,12561,584,29,14,"Home Loan",0],[58,"Male",92124,16302,541,49,17,"Car Loan",0],[41,"Female",28335,11469,560,19,3,"Personal Loan",1],[53,"Female",145899,18224,619,43,17,"Business Loan",0],[50,"Female",134937,42599,803,55,12,"Business Loan",0],[43,"Female",41352,59553,805,44,12,"Education",0],[45,"Female",76720,42573,325,51,19,"Home Loan",0],[53,"Male",56586,5060,428,45,1,"Car Loan",1],[64,"Male",54911,8596,643,47,11,"Education",0],[30,"Female",47712,43000,709,9,10,"Home Loan",1],[54,"Male",47355,72526,345,19,10,"Home Loan",0],[39,"Female",104076,25128,617,44,3,"Car Loan",0],[61,"Female",111267,39016,634,39,18,"Personal Loan",0],[54,"Female",125185,79182,455,23,19,"Business Loan",0],[35,"Female",100642,22327,681,55,6,"Personal Loan",0],[49,"Female",99459,18918,302,49,2,"Personal Loan",0],[30,"Male",123268,75835,762,14,17,"Personal Loan",0],[22,"Male",39262,62132,432,22,13,"Home Loan",0],[46,"Female",86234,77303,361,52,10,"Home Loan",0],[45,"Male",52479,31734,452,54,12,"Personal Loan",1],[23,"Female",72736,39560,826,9,9,"Car Loan",1],[25,"Female",125186,37413,597,45,0,"Education",0],[58,"Female",57080,24096,523,22,5,"Personal Loan",1],[45,"Male",79163,46427,840,20,9,"Education",0],[46,"Male",131276,17999,602,58,10,"Business Loan",0],[36,"Female",123033,39387,561,47,10,"Car Loan",0],[24,"Female",123605,46157,491,10,16,"Personal Loan",0],[22,"Male",39870,41455,495,13,16,"Car Loan",0],[45,"Male",118142,17175,703,30,19,"Education",1],[53,"Female",91726,60176,326,1,10,"Personal Loan",0],[51,"Male",147018,79666,651,26,2,"Car Loan",0],[32,"Male",51921,46914,387,12,11,"Business Loan",0],[53,"Male",81629,76907,788,45,16,"Car Loan",0],[23,"Male",41447,62545,371,54,10,"Personal Loan",0],[45,"Female",42415,40772,413,50,5,"Personal Loan",0],[37,"Female",135359,16344,519,48,12,"Education",0],[45,"Female",77091,19596,399,9,15,"Car Loan",0],[33,"Male",57892,43258,507,39,1,"Car Loan",0],[53,"Male",81813,11645,321,39,18,"Car Loan",0],[29,"Male",104717,29574,562,16,11,"Business Loan",0],[50,"Male",59298,60180,815,59,2,"Business Loan",0],[38,"Male",100719,28051,418,20,7,"Home Loan",1],[34,"Female",24621,66916,443,18,10,"Business Loan",0],[48,"Male",41732,69644,791,50,10,"Car Loan",0],[44,"Male",44504,42430,800,27,8,"Car Loan",0],[58,"Female",144704,33865,613,26,15,"Business Loan",0],[55,"Female",146146,49623,586,42,11,"Car Loan",0],[55,"Male",138033,7050,611,24,2,"Business Loan",1],[40,"Male",31023,61264,363,52,17,"Car Loan",1],[22,"Female",76720,70441,432,11,5,"Car Loan",0],[56,"Male",21324,72728,711,40,3,"Home Loan",0],[24,"Female",92936,29818,388,26,11,"Car Loan",1],[28,"Female",76720,76895,338,49,12,"Business Loan",0],[56,"Female",39065,24282,594,26,3,"Home Loan",0],[49,"Female",123333,25609,758,23,2,"Personal Loan",0],[38,"Male",24809,65500,811,14,18,"Business Loan",0],[18,"Male",59749,61276,664,41,13,"Education",1],[57,"Male",92474,31399,655,25,10,"Business Loan",0],[45,"Female",124573,39008,640,55,1,"Car Loan",0],[28,"Male",64261,10415,850,44,6,"Home Loan",1],[33,"Female",103285,78340,625,7,16,"Home Loan",0],[60,"Female",113396,32306,462,38,6,"Home Loan",0],[62,"Female",40559,20328,826,19,3,"Personal Loan",0],[25,"Male",139156,68731,584,40,5,"Car Loan",1],[40,"Male",0,22771,674,57,5,"Home Loan",0],[39,"Male",26801,47078,584,42,3,"Education",0],[64,"Male",76720,34430,350,30,7,"Education",0],[22,"Male",115084,69077,383,58,9,"Business Loan",0],[56,"Female",76720,32952,410,40,9,"Personal Loan",0],[22,"Female",46790,59917,316,18,14,"Education",0],[47,"Male",126476,37733,458,45,3,"Home Loan",0],[23,"Male",67926,69929,506,56,2,"Car Loan",0],[60,"Male",25569,42904,584,38,10,"Car Loan",0],[45,"Female",76720,16122,772,33,18,"Business Loan",1],[53,"Female",103807,5338,352,13,16,"Car Loan",0],[58,"Male",110825,79691,440,26,14,"Home Loan",0],[56,"Female",38017,79055,848,37,14,"Business Loan",0],[52,"Male",131927,67187,719,37,17,"Business Loan",0],[43,"Male",141465,72957,458,56,18,"Business Loan",0],[43,"Female",133748,46874,670,33,7,"Car Loan",0],[45,"Male",120497,31737,814,30,11,"Business Loan",0],[30,"Male",55270,21389,622,42,7,"Personal Loan",0],[36,"Female",62918,48872,584,56,9,"Home Loan",1],[37,"Female",132816,30522,311,50,5,"Education",1],[31,"Male",30488,30510,302,37,19,"Home Loan",0],[50,"Male",21062,52362,523,16,19,"Education",0],[18,"Female",144707,16246,521,28,15,"Personal Loan",0],[42,"Male",70612,52057,831,36,19,"Education",0],[37,"Male",32763,39911,631,24,11,"Car Loan",1],[59,"Male",106704,60106,608,23,19,"Car Loan",0],[49,"Female",79399,49547,797,20,19,"Education",0],[45,"Male",53591,19382,383,18,18,"Car Loan",0],[46,"Female",95880,61373,651,34,19,"Education",1],[51,"Female",76720,24541,630,16,19,"Personal Loan",0],[39,"Female",76720,33746,494,40,15,"Home Loan",0],[48,"Male",112234,66396,420,26,3,"Home Loan",0],[53,"Female",86203,30150,665,50,6,"Car Loan",0],[62,"Male",38384,36821,584,39,0,"Education",1],[43,"Male",119518,69435,570,6,5,"Personal Loan",0],[49,"Male",99252,17182,578,51,18,"Personal Loan",0],[49,"Male",119835,45631,456,35,16,"Car Loan",1],[47,"Female",76720,55072,758,39,2,"Business Loan",0],[45,"Male",56187,34975,592,34,11,"Business Loan",0],[60,"Female",113714,10408,773,21,16,"Home Loan",0],[47,"Female",31637,11960,713,29,14,"Personal Loan",1],[63,"Male",146116,21984,412,55,15,"Home Loan",0],[34,"Male",76720,34486,696,25,10,"Personal Loan",0],[51,"Male",76397,18859,485,51,8,"Car Loan",0],[45,"Male",76720,19060,532,8,19,"Business Loan",0],[26,"Male",124680,49813,643,57,16,"Business Loan",0],[58,"Male",122468,37921,450,6,10,"Education",0],[35,"Male",75129,76324,321,52,0,"Car Loan",0],[58,"Male",130133,41244,505,11,15,"Education",0],[59,"Male",66427,13577,310,47,10,"Home Loan",0],[26,"Male",21015,53302,689,13,15,"Car Loan",0],[49,"Female",26090,74626,584,28,3,"Home Loan",0],[39,"Male",62808,66268,586,26,13,"Car Loan",0],[54,"Male",112705,6524,683,7,14,"Car Loan",0],[42,"Female",93963,22685,748,42,15,"Home Loan",1],[33,"Female",36907,42198,754,20,7,"Business Loan",0],[54,"Female",65543,67516,633,42,9,"Business Loan",1],[30,"Female",35485,30053,509,35,3,"Personal Loan",1],[54,"Male",44285,79532,600,7,10,"Car Loan",0],[53,"Male",76720,24816,421,15,9,"Car Loan",0],[45,"Female",76720,45998,300,30,16,"Business Loan",0],[47,"Female",58088,21241,402,23,8,"Car Loan",1],[63,"Male",106769,15789,526,21,14,"Car Loan",0],[100,"Female",99104,11640,584,7,0,"Car Loan",0],[38,"Male",27239,53285,801,41,10,"Business Loan",1],[34,"Male",95745,16555,334,57,11,"Personal Loan",0],[46,"Male",76720,76431,603,18,6,"Education",1],[32,"Female",54674,39801,335,19,7,"Car Loan",0],[25,"Male",89836,59912,307,15,10,"Personal Loan",0],[32,"Female",76720,54688,465,35,14,"Education",0],[29,"Female",54816,13705,536,21,7,"Home Loan",0],[40,"Male",91774,56474,517,22,2,"Education",0],[55,"Female",0,26792,584,57,2,"Personal Loan",0],[48,"Female",55909,50558,336,35,12,"Car Loan",1],[33,"Female",148142,52882,835,28,10,"Business Loan",1],[24,"Male",39758,31657,660,26,10,"Personal Loan",0],[28,"Female",76720,29951,744,30,1,"Education",1],[57,"Female",114456,62492,784,31,1,"Personal Loan",1],[45,"Female",69922,32856,444,12,7,"Car Loan",0],[49,"Female",102848,8756,584,27,9,"Personal Loan",0],[61,"Female",65002,18350,816,16,14,"Home Loan",0],[49,"Male",76178,29442,715,51,1,"Home Loan",1],[47,"Female",58638,17676,407,20,8,"Personal Loan",1],[43,"Male",59764,53756,584,10,12,"Home Loan",0],[24,"Male",113045,61942,461,41,6,"Home Loan",0],[52,"Female",57131,65774,462,27,0,"Business Loan",0],[58,"Female",33116,24029,758,50,15,"Car Loan",0],[27,"Female",43959,45738,637,23,0,"Education",0],[45,"Female",82680,45806,542,18,6,"Business Loan",0],[32,"Female",25713,7482,522,6,16,"Education",0],[56,"Male",54578,9018,783,27,10,"Car Loan",0],[26,"Female",1000000,29519,823,34,10,"Education",1],[36,"Male",75123,71017,727,14,4,"Car Loan",0],[28,"Female",55547,54840,442,30,6,"Education",0],[54,"Male",132428,11737,796,10,2,"Education",0],[44,"Female",90390,28150,541,40,11,"Home Loan",0],[45,"Male",106188,5922,569,17,15,"Education",0],[30,"Male",35485,30053,509,35,3,"Personal Loan",0],[24,"Male",30916,7198,416,24,10,"Car Loan",0],[54,"Female",87661,44974,672,17,15,"Home Loan",0],[31,"Male",148055,79910,520,37,18,"Home Loan",0],[45,"Female",60262,14184,584,43,11,"Business Loan",0],[45,"Male",44071,26520,444,24,14,"Business Loan",0],[56,"Female",43386,66120,581,54,17,"Car Loan",0],[53,"Male",50355,37154,328,8,10,"Car Loan",0],[51,"Male",44214,39020,492,13,19,"Personal Loan",0],[23,"Male",25486,51514,836,14,0,"Car Loan",0],[35,"Female",108461,44809,339,31,13,"Business Loan",0],[45,"Female",43524,9425,719,14,10,"Car Loan",0],[45,"Male",41677,48925,693,18,5,"Business Loan",0],[45,"Female",43793,23449,306,30,15,"Home Loan",0],[23,"Male",39087,24256,535,48,5,"Personal Loan",0],[50,"Female",31314,63053,788,29,10,"Personal Loan",0],[54,"Male",42700,5814,752,17,9,"Car Loan",0],[57,"Female",91180,28275,629,55,10,"Personal Loan",1],[42,"Female",89896,43110,566,53,14,"Personal Loan",0],[63,"Female",67280,61138,300,40,0,"Home Loan",0],[58,"Female",111362,58028,838,46,5,"Education",0],[57,"Female",128492,28710,398,10,12,"Car Loan",1],[47,"Male",71745,74768,442,56,15,"Home Loan",0],[37,"Female",38777,13820,584,24,13,"Car Loan",1],[40,"Female",75284,75480,465,25,10,"Business Loan",0],[26,"Male",108092,25611,584,13,4,"Home Loan",1],[38,"Female",117203,50587,550,26,9,"Personal Loan",1],[28,"Female",104791,47460,550,46,4,"Personal Loan",1],[30,"Male",130951,41408,602,37,13,"Personal Loan",0],[45,"Male",81886,26172,418,26,10,"Home Loan",1],[22,"Male",89724,56860,660,9,2,"Car Loan",0],[62,"Female",58413,8797,648,57,10,"Personal Loan",0],[35,"Male",52307,58441,820,37,11,"Home Loan",1],[64,"Female",76720,34629,455,7,11,"Business Loan",0],[37,"Female",107505,67552,793,10,5,"Personal Loan",0],[27,"Male",104665,41368,691,8,6,"Home Loan",0],[41,"Male",43574,11150,451,20,17,"Car Loan",0],[37,"Male",62318,16046,584,53,8,"Education",0],[24,"Male",148778,70155,386,17,9,"Car Loan",0],[40,"Female",75645,57375,453,53,14,"Personal Loan",0],[29,"Female",79031,11168,300,13,8,"Business Loan",0],[45,"Female",43833,57487,836,37,18,"Car Loan",0],[31,"Female",76720,15816,338,22,8,"Car Loan",0],[28,"Female",33807,34287,522,8,17,"Home Loan",0],[54,"Male",102844,29917,727,30,16,"Car Loan",0],[45,"Female",20302,79038,416,19,8,"Personal Loan",0],[37,"Female",24835,24956,385,26,2,"Business Loan",0],[53,"Female",147600,59620,663,55,13,"Business Loan",0],[54,"Female",50354,5126,359,26,8,"Education",0],[62,"Female",76720,48303,316,59,3,"Education",0],[59,"Female",141288,55460,545,56,3,"Personal Loan",1],[24,"Female",124346,42148,541,7,16,"Car Loan",0],[47,"Male",109780,64383,648,29,9,"Car Loan",1],[28,"Male",76720,47101,525,30,2,"Home Loan",0],[56,"Male",125570,36480,611,48,13,"Personal Loan",0],[63,"Female",73871,62384,309,43,8,"Business Loan",0],[50,"Male",75658,8430,584,15,0,"Personal Loan",1],[48,"Male",59954,32139,444,54,4,"Personal Loan",0],[43,"Female",123081,42641,753,15,3,"Personal Loan",0],[61,"Female",138012,6759,372,36,6,"Business Loan",1],[29,"Female",26970,57603,446,19,10,"Education",0],[29,"Female",93477,20048,607,53,2,"Education",0],[33,"Male",73330,25079,717,26,11,"Home Loan",0],[34,"Male",148148,22368,556,39,5,"Car Loan",0],[40,"Male",125654,25581,610,54,0,"Business Loan",0],[45,"Male",107731,32345,706,41,8,"Car Loan",0],[60,"Female",62344,37265,781,33,19,"Education",0],[55,"Male",41545,70545,414,51,11,"Car Loan",0],[51,"Female",77799,72779,378,35,8,"Car Loan",0],[47,"Male",24748,56356,584,22,14,"Home Loan",0],[44,"Female",81476,11371,609,31,7,"Home Loan",1],[46,"Female",108464,43243,694,59,10,"Car Loan",0],[57,"Female",31174,7219,339,9,13,"Personal Loan",0],[54,"Male",90080,6279,597,45,7,"Home Loan",0],[45,"Female",132856,65004,525,24,10,"Home Loan",0],[49,"Male",56395,19153,320,38,4,"Car Loan",0],[45,"Male",76720,40111,635,34,0,"Education",1],[31,"Female",30267,9494,661,25,13,"Business Loan",0],[51,"Male",101818,41062,590,10,9,"Personal Loan",0],[41,"Male",67605,9757,301,32,18,"Business Loan",0],[60,"Male",95697,6750,460,6,14,"Home Loan",0],[54,"Female",124293,71358,663,16,5,"Home Loan",0],[31,"Male",134049,50084,838,45,15,"Home Loan",0],[57,"Female",131076,40400,675,35,11,"Car Loan",1],[63,"Male",73682,56226,406,31,5,"Business Loan",0],[52,"Female",70990,7079,617,51,5,"Education",0],[43,"Male",125787,11783,513,21,9,"Business Loan",0],[27,"Male",147016,50765,609,20,4,"Car Loan",0],[46,"Male",93688,45600,684,27,7,"Business Loan",0],[45,"Male",28415,16485,426,20,14,"Personal Loan",0],[30,"Male",148675,65279,507,7,3,"Home Loan",0],[26,"Male",128319,12083,301,44,19,"Business Loan",0],[46,"Female",145362,24250,300,16,5,"Business Loan",1],[50,"Male",20384,77258,334,28,7,"Home Loan",0],[38,"Male",29337,78509,843,29,17,"Education",0],[48,"Female",123214,78319,806,57,3,"Car Loan",1],[47,"Female",80921,15954,584,15,2,"Car Loan",1],[57,"Male",76720,24097,524,7,18,"Education",0],[22,"Male",128215,25491,300,6,13,"Home Loan",0],[53,"Female",98859,68374,685,57,3,"Education",0],[51,"Female",34489,72642,584,44,2,"Home Loan",1],[45,"Male",40309,53770,421,36,19,"Business Loan",1],[54,"Male",111792,76520,713,49,18,"Education",1],[61,"Female",107508,72584,753,8,6,"Car Loan",0],[63,"Male",37144,33145,584,27,10,"Education",1],[50,"Female",90640,52915,618,15,6,"Car Loan",0],[56,"Male",70448,50028,519,56,18,"Business Loan",0],[35,"Male",139803,33769,789,23,1,"Education",0],[56,"Male",122795,63067,337,40,1,"Car Loan",0],[50,"Female",56668,34711,781,45,7,"Home Loan",1],[36,"Female",120843,75792,306,38,4,"Home Loan",0],[55,"Female",122023,62761,724,11,15,"Education",1],[28,"Male",56939,14111,656,27,4,"Business Loan",0],[60,"Female",148077,78543,716,56,13,"Car Loan",0],[47,"Female",113229,29070,375,12,10,"Car Loan",0],[41,"Female",70428,12564,320,54,2,"Business Loan",0],[53,"Male",123196,79478,605,43,1,"Business Loan",1],[45,"Male",108858,20524,584,37,6,"Personal Loan",0],[47,"Female",76720,9263,464,50,2,"Education",0],[45,"Female",43524,9425,719,14,10,"Car Loan",0],[57,"Male",76720,41976,475,23,13,"Personal Loan",0],[60,"Male",75393,40737,633,37,2,"Personal Loan",0],[41,"Male",40384,68230,584,11,7,"Personal Loan",1],[37,"Male",78141,77847,682,11,1,"Home Loan",0],[61,"Female",76720,77274,406,29,11,"Education",0],[45,"Male",114074,7573,327,32,5,"Personal Loan",0],[45,"Female",59081,46832,381,10,12,"Business Loan",0],[37,"Male",136594,29354,794,39,10,"Home Loan",0],[56,"Female",49189,78506,652,10,7,"Personal Loan",0],[27,"Male",81642,44915,823,28,17,"Business Loan",1],[52,"Female",39198,36653,569,20,11,"Car Loan",0],[49,"Male",142418,9853,550,34,0,"Personal Loan",0],[25,"Male",75771,7336,584,21,6,"Education",0],[56,"Male",132734,50648,617,57,1,"Business Loan",0],[45,"Male",28415,16485,426,20,14,"Education",0],[54,"Female",135765,60029,584,12,4,"Home Loan",0],[23,"Male",76720,38536,758,18,1,"Business Loan",0],[25,"Female",125955,47533,336,47,1,"Home Loan",0],[49,"Female",142418,9853,550,34,0,"Personal Loan",0],[35,"Female",76720,54376,627,12,10,"Car Loan",0],[57,"Female",66271,37913,751,55,14,"Car Loan",1],[36,"Male",134065,70310,819,14,19,"Home Loan",1],[26,"Male",138831,7983,603,36,5,"Car Loan",0],[58,"Male",27114,44282,416,42,12,"Business Loan",0],[53,"Male",123196,79478,605,43,1,"Business Loan",1],[24,"Female",48699,18919,769,26,13,"Education",1],[49,"Female",76720,58173,820,20,10,"Education",1],[44,"Male",76720,63606,644,37,19,"Home Loan",0],[30,"Male",148675,65279,507,7,3,"Home Loan",0],[45,"Male",47192,37254,600,54,8,"Home Loan",0],[56,"Female",25126,38039,389,21,15,"Personal Loan",0],[29,"Female",141954,69323,423,7,9,"Car Loan",0],[64,"Female",127825,16664,584,50,10,"Car Loan",1],[44,"Female",90340,63066,563,59,13,"Business Loan",0],[40,"Female",131854,43565,313,9,7,"Home Loan",0],[62,"Male",63125,40954,584,40,10,"Home Loan",0],[54,"Male",20055,71081,698,46,3,"Education",0],[22,"Female",54620,7443,686,43,4,"Home Loan",0],[45,"Male",80100,65535,323,15,9,"Car Loan",1],[45,"Male",130698,40435,311,33,19,"Personal Loan",0],[54,"Female",119657,73244,643,47,10,"Personal Loan",1],[56,"Female",32015,60337,657,33,7,"Personal Loan",0],[59,"Male",58765,36419,567,12,4,"Personal Loan",0],[24,"Male",43954,75855,623,40,5,"Home Loan",1],[42,"Male",58518,62775,471,57,11,"Personal Loan",0],[30,"Male",26949,64052,666,42,1,"Car Loan",0],[49,"Male",144454,24063,680,43,15,"Personal Loan",0],[34,"Male",29435,71656,680,17,5,"Home Loan",0],[45,"Female",48295,64207,659,49,1,"Home Loan",0],[63,"Female",137520,50420,726,46,15,"Car Loan",0],[29,"Female",70343,13007,736,7,3,"Car Loan",0],[54,"Female",102558,57393,423,46,3,"Business Loan",0],[61,"Female",35254,44952,584,15,13,"Education",1],[45,"Female",40159,51240,391,40,4,"Personal Loan",0],[61,"Female",64247,21371,793,32,16,"Education",0],[47,"Female",45289,61819,700,36,12,"Business Loan",0],[59,"Female",34397,8812,346,24,19,"Car Loan",0],[61,"Female",94460,24216,467,51,5,"Home Loan",1],[45,"Male",77854,23574,754,7,12,"Home Loan",0],[39,"Male",20404,44986,744,24,16,"Car Loan",0],[44,"Male",43321,56571,566,59,8,"Car Loan",0],[29,"Male",46432,16954,664,11,18,"Car Loan",1]];
+
+const BANDS = [
+  { name:'Poor', min:300, max:579, color:'#EF4444' },
+  { name:'Fair', min:580, max:669, color:'#F59E0B' },
+  { name:'Good', min:670, max:739, color:'#3B82F6' },
+  { name:'Very Good', min:740, max:799, color:'#10B981' },
+  { name:'Exceptional', min:800, max:850, color:'#8B5CF6' },
+];
+function bandOf(score){ return BANDS.find(b => score >= b.min && score <= b.max) || BANDS[0]; }
+
+const AGE_BANDS = [
+  { name:'18-25', min:18, max:25 },
+  { name:'26-35', min:26, max:35 },
+  { name:'36-45', min:36, max:45 },
+  { name:'46-55', min:46, max:55 },
+  { name:'56-65', min:56, max:65 },
+  { name:'66+', min:66, max:200 },
+];
+function ageBandOf(age){ return AGE_BANDS.find(b => age >= b.min && age <= b.max) || AGE_BANDS[AGE_BANDS.length-1]; }
+
+const PURPOSES = ['Home Loan', 'Education', 'Personal Loan', 'Business Loan', 'Car Loan'];
+const PURPOSE_COLORS = { 'Home Loan':'#2563EB', 'Education':'#14B8A6', 'Personal Loan':'#F59E0B', 'Business Loan':'#8B5CF6', 'Car Loan':'#F43F5E' };
+
+function fmtMoney(n){ return '$' + Math.round(n).toLocaleString(); }
+function fmtCompact(n){
+  const a = Math.abs(n);
+  if (a >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+  if (a >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+  return '$' + Math.round(n);
+}
+function pct(n){ return (n*100).toFixed(1) + '%'; }
+
+/* ---------------- State ---------------- */
+const state = {
+  bands: new Set(BANDS.map(b => b.name)),
+  gender: 'ALL',
+  purposes: new Set(PURPOSES),
+  ageBand: null,
+};
+
+/* ---------------- Filter UI ---------------- */
+function initFilterUI(){
+  const bandPills = document.getElementById('bandPills');
+  BANDS.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'pill active';
+    el.textContent = b.name;
+    el.style.background = b.color;
+    el.dataset.band = b.name;
+    el.onclick = () => {
+      if (state.bands.has(b.name) && state.bands.size > 1) state.bands.delete(b.name);
+      else state.bands.add(b.name);
+      render();
+    };
+    bandPills.appendChild(el);
+  });
+
+  document.querySelectorAll('#genderSeg .seg-btn').forEach(btn => {
+    btn.onclick = () => { state.gender = btn.dataset.g; render(); };
+  });
+
+  const pWrap = document.getElementById('purposeChecks');
+  PURPOSES.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'check-row';
+    row.innerHTML = `<div class="check-box on" data-p="${p}" style="background:${PURPOSE_COLORS[p]}"></div>${p}`;
+    row.onclick = () => {
+      if (state.purposes.has(p) && state.purposes.size > 1) state.purposes.delete(p);
+      else state.purposes.add(p);
+      render();
+    };
+    pWrap.appendChild(row);
+  });
+
+  document.getElementById('clearBtn').onclick = () => {
+    state.bands = new Set(BANDS.map(b => b.name));
+    state.gender = 'ALL';
+    state.purposes = new Set(PURPOSES);
+    state.ageBand = null;
+    render();
+  };
+}
+
+function syncFilterVisuals(){
+  document.querySelectorAll('#bandPills .pill').forEach(p => {
+    const on = state.bands.has(p.dataset.band);
+    p.classList.toggle('active', on);
+    if (!on) p.style.background = '#F1F5F9';
+    else p.style.background = BANDS.find(b=>b.name===p.dataset.band).color;
+    p.style.color = on ? '#fff' : '#64748B';
+  });
+  document.querySelectorAll('#genderSeg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.g === state.gender));
+  document.querySelectorAll('#purposeChecks .check-box').forEach(c => {
+    const on = state.purposes.has(c.dataset.p);
+    c.classList.toggle('on', on);
+    c.style.background = on ? PURPOSE_COLORS[c.dataset.p] : '#fff';
+  });
+
+  const activeCount = (BANDS.length - state.bands.size) + (state.gender !== 'ALL' ? 1 : 0) +
+    (PURPOSES.length - state.purposes.size) + (state.ageBand ? 1 : 0);
+  document.getElementById('filterCount').textContent = activeCount;
+  document.getElementById('clearBtn').classList.toggle('show', activeCount > 0);
+
+  const cfSection = document.getElementById('crossFilterSection');
+  const cfChips = document.getElementById('crossFilterChips');
+  cfChips.innerHTML = '';
+  if (state.ageBand){
+    cfSection.style.display = 'block';
+    const chip = document.createElement('div');
+    chip.className = 'crossfilter-chip';
+    chip.textContent = 'Age ' + state.ageBand + ' \u00d7';
+    chip.onclick = () => { state.ageBand = null; render(); };
+    cfChips.appendChild(chip);
+  } else {
+    cfSection.style.display = 'none';
+  }
+}
+
+/* ---------------- Filtering helpers ---------------- */
+function passBase(r, opts){
+  opts = opts || {};
+  const gender = r[1], purpose = r[7], score = r[4], age = r[0];
+  if (!opts.skipBand && !state.bands.has(bandOf(score).name)) return false;
+  if (state.gender !== 'ALL' && gender !== state.gender) return false;
+  if (!state.purposes.has(purpose)) return false;
+  if (!opts.skipAge && state.ageBand && ageBandOf(age).name !== state.ageBand) return false;
+  return true;
+}
+
+function getFiltered(){ return ROWS.filter(r => passBase(r)); }
+
+function computeKPIs(filtered){
+  const n = filtered.length;
+  let defaults = 0, scoreSum = 0, loanSum = 0, incomeSum = 0;
+  filtered.forEach(r => { defaults += r[8]; scoreSum += r[4]; loanSum += r[3]; incomeSum += r[2]; });
+  return {
+    n, defaultRate: n ? defaults/n : 0,
+    avgScore: n ? scoreSum/n : 0,
+    avgLoan: n ? loanSum/n : 0,
+    avgIncome: n ? incomeSum/n : 0,
+  };
+}
+
+function computeByBand(){
+  // ignores band filter itself, respects gender/purpose/ageband
+  const rows = ROWS.filter(r => passBase(r, { skipBand:true }));
+  return BANDS.map(b => {
+    const sub = rows.filter(r => bandOf(r[4]).name === b.name);
+    const n = sub.length, d = sub.reduce((s,r)=>s+r[8],0);
+    return { name:b.name, color:b.color, n, rate: n ? d/n : 0 };
+  });
+}
+
+function computeByAge(){
+  // ignores ageBand filter itself, respects band/gender/purpose
+  const rows = ROWS.filter(r => passBase(r, { skipAge:true }));
+  return AGE_BANDS.map(ab => {
+    const sub = rows.filter(r => ageBandOf(r[0]).name === ab.name);
+    const n = sub.length, d = sub.reduce((s,r)=>s+r[8],0);
+    return { name:ab.name, n, rate: n ? d/n : 0 };
+  });
+}
+
+function computeByPurpose(filtered){
+  return PURPOSES.map(p => {
+    const sub = filtered.filter(r => r[7] === p);
+    const n = sub.length, loanSum = sub.reduce((s,r)=>s+r[3],0);
+    return { name:p, n, loanSum, color: PURPOSE_COLORS[p] };
+  }).filter(p => p.n > 0 || state.purposes.has(p.name));
+}
+
+/* ---------------- Insights ---------------- */
+function renderInsights(byBand, byAge, byPurpose, kpis){
+  const row = document.getElementById('insightsRow');
+  row.innerHTML = '<div class="insights-label">KEY<br/>INSIGHTS</div>';
+  const items = [];
+  const validBands = byBand.filter(b => b.n > 0);
+  if (validBands.length){
+    const worst = [...validBands].sort((a,b) => b.rate - a.rate)[0];
+    items.push({ icon:'&#9888;&#65039;', text:`${worst.name} credit customers default the most, at ${pct(worst.rate)} (${worst.n} customers).` });
+  }
+  const validAges = byAge.filter(a => a.n > 0);
+  if (validAges.length){
+    const worstAge = [...validAges].sort((a,b) => b.rate - a.rate)[0];
+    items.push({ icon:'&#128100;', text:`Age group ${worstAge.name} shows the highest default rate at ${pct(worstAge.rate)}.` });
+  }
+  if (byPurpose.length){
+    const top = [...byPurpose].sort((a,b) => b.n - a.n)[0];
+    if (top && top.n > 0) items.push({ icon:'&#128179;', text:`${top.name} is the most common loan type in this selection (${top.n} loans, ${fmtCompact(top.loanSum)} total).` });
+  }
+  items.push({ icon: kpis.defaultRate > 0.25 ? '&#128201;' : '&#128200;', text:`Overall default rate for the current selection is ${pct(kpis.defaultRate)} across ${kpis.n} customers.` });
+
+  items.forEach(ins => {
+    const el = document.createElement('div');
+    el.className = 'insight-item';
+    el.innerHTML = `<div class="insight-emoji">${ins.icon}</div><div class="insight-text">${ins.text}</div>`;
+    row.appendChild(el);
+  });
+}
+
+/* ---------------- KPI cards ---------------- */
+const KPI_DEFS = [
+  { label:'Total Customers', color:'#2563EB', icon:'&#128101;', get:(k)=>k.n.toLocaleString() },
+  { label:'Default Rate', color:'#EF4444', icon:'&#9888;&#65039;', get:(k)=>pct(k.defaultRate) },
+  { label:'Avg Credit Score', color:'#8B5CF6', icon:'&#127919;', get:(k)=>Math.round(k.avgScore) },
+  { label:'Avg Loan Amount', color:'#F59E0B', icon:'&#128179;', get:(k)=>fmtCompact(k.avgLoan) },
+  { label:'Avg Annual Income', color:'#14B8A6', icon:'&#128176;', get:(k)=>fmtCompact(k.avgIncome) },
+];
+function renderKPIs(kpis){
+  const row = document.getElementById('kpiRow');
+  row.innerHTML = '';
+  KPI_DEFS.forEach(def => {
+    const el = document.createElement('div');
+    el.className = 'card kpi-card';
+    el.innerHTML = `
+      <div class="kpi-accent" style="background:${def.color}"></div>
+      <div class="kpi-top">
+        <div class="kpi-label">${def.label}</div>
+        <div class="kpi-icon" style="background:${def.color}1A">${def.icon}</div>
+      </div>
+      <div class="kpi-value">${def.get(kpis)}</div>
+    `;
+    row.appendChild(el);
+  });
+}
+
+/* ---------------- SVG chart helpers ---------------- */
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const tipEl = document.getElementById('vizTip');
+function showTip(evt, html){ tipEl.innerHTML = html; tipEl.classList.add('show'); moveTip(evt); }
+function moveTip(evt){ tipEl.style.left = (evt.clientX + 14) + 'px'; tipEl.style.top = (evt.clientY - 10) + 'px'; }
+function hideTip(){ tipEl.classList.remove('show'); }
+function niceMax(v){
+  if (v <= 0) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(v)));
+  const n = v / p;
+  let step; if (n <= 1) step = 1; else if (n <= 2) step = 2; else if (n <= 5) step = 5; else step = 10;
+  return step * p;
+}
+
+/* ---- Default rate by credit band (bar) ---- */
+function buildBandChart(byBand){
+  const holder = document.getElementById('bandChart');
+  holder.innerHTML = '';
+  const W = 600, H = 220, padL = 40, padR = 12, padT = 20, padB = 24;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const svg = el('svg', { viewBox:`0 0 ${W} ${H}`, preserveAspectRatio:'none' }, holder);
+  const maxRate = Math.max(0.5, niceMax(Math.max(...byBand.map(b=>b.rate)) * 1.3));
+
+  [0,0.25,0.5,0.75,1].forEach(f => {
+    const y = padT + innerH * (1-f);
+    el('line', { x1:padL, x2:W-padR, y1:y, y2:y, stroke:'#EEF1F6', 'stroke-width':1 }, svg);
+    el('text', { x:padL-6, y:y+3, 'text-anchor':'end', class:'axis-text' }, svg).textContent = Math.round(maxRate*f*100)+'%';
+  });
+
+  const n = byBand.length, colW = innerW/n, barW = Math.min(46, colW*0.55);
+  byBand.forEach((b,i) => {
+    const h = (b.rate/maxRate) * innerH;
+    const x = padL + colW*i + (colW-barW)/2;
+    const y = padT + innerH - h;
+    const bar = el('rect', { x, y, width:barW, height:Math.max(h,1), rx:4, fill:b.color, class:'bar-shape', style:'cursor:default' }, svg);
+    bar.addEventListener('mousemove', (evt) => showTip(evt, `${b.name}<br/>${pct(b.rate)} default rate (${b.n} customers)`));
+    bar.addEventListener('mouseleave', hideTip);
+    el('text', { x:x+barW/2, y:H-6, 'text-anchor':'middle', class:'axis-text' }, svg).textContent = b.name;
+  });
+}
+
+/* ---- Loan portfolio donut ---- */
+function buildPurposeDonut(byPurpose){
+  const holder = document.getElementById('purposeDonut');
+  holder.innerHTML = '';
+  const W = 420, H = 220;
+  const svg = el('svg', { viewBox:`0 0 ${W} ${H}`, preserveAspectRatio:'xMidYMid meet' }, holder);
+  const total = byPurpose.reduce((s,p)=>s+p.n,0);
+  const cx = 110, cy = H/2, r = 72, rInner = 42;
+  if (total <= 0){
+    el('text', { x:cx, y:cy+4, 'text-anchor':'middle', class:'axis-text' }, svg).textContent = 'No data';
+  } else {
+    let a0 = -90;
+    byPurpose.forEach(p => {
+      if (p.n <= 0) return;
+      const frac = p.n/total, a1 = a0 + frac*360;
+      const path = donutSlicePath(cx, cy, rInner, r, a0, a1);
+      const shape = el('path', { d:path, fill:p.color, style:'cursor:default' }, svg);
+      shape.addEventListener('mousemove', (evt) => showTip(evt, `${p.name}<br/>${p.n} loans (${(frac*100).toFixed(0)}%) &middot; ${fmtCompact(p.loanSum)} total`));
+      shape.addEventListener('mouseleave', hideTip);
+      a0 = a1;
+    });
+  }
+  const legX = 210, rowH = 22;
+  byPurpose.forEach((p,i) => {
+    const y = 38 + i*rowH;
+    el('rect', { x:legX, y:y-9, width:10, height:10, rx:2, fill:p.color }, svg);
+    el('text', { x:legX+16, y, class:'cat-text', style:'font-weight:600' }, svg).textContent = p.name;
+    el('text', { x:legX+16, y:y+13, class:'axis-text' }, svg).textContent = p.n + ' loans';
+  });
+}
+function donutSlicePath(cx, cy, r0, r1, a0, a1){
+  const toRad = a => (a*Math.PI)/180;
+  const large = (a1-a0) % 360 > 180 ? 1 : 0;
+  const x0o = cx + r1*Math.cos(toRad(a0)), y0o = cy + r1*Math.sin(toRad(a0));
+  const x1o = cx + r1*Math.cos(toRad(a1)), y1o = cy + r1*Math.sin(toRad(a1));
+  const x1i = cx + r0*Math.cos(toRad(a1)), y1i = cy + r0*Math.sin(toRad(a1));
+  const x0i = cx + r0*Math.cos(toRad(a0)), y0i = cy + r0*Math.sin(toRad(a0));
+  return `M ${x0o} ${y0o} A ${r1} ${r1} 0 ${large} 1 ${x1o} ${y1o} L ${x1i} ${y1i} A ${r0} ${r0} 0 ${large} 0 ${x0i} ${y0i} Z`;
+}
+
+/* ---- Default rate by age group (clickable bar) ---- */
+function buildAgeChart(byAge){
+  const holder = document.getElementById('ageChart');
+  holder.innerHTML = '';
+  const W = 600, H = 220, padL = 40, padR = 12, padT = 20, padB = 22;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const svg = el('svg', { viewBox:`0 0 ${W} ${H}`, preserveAspectRatio:'none' }, holder);
+  const maxRate = Math.max(0.5, niceMax(Math.max(...byAge.map(a=>a.rate), 0.01) * 1.3));
+
+  [0,0.25,0.5,0.75,1].forEach(f => {
+    const y = padT + innerH*(1-f);
+    el('line', { x1:padL, x2:W-padR, y1:y, y2:y, stroke:'#EEF1F6', 'stroke-width':1 }, svg);
+    el('text', { x:padL-6, y:y+3, 'text-anchor':'end', class:'axis-text' }, svg).textContent = Math.round(maxRate*f*100)+'%';
+  });
+
+  const n = byAge.length, colW = innerW/n, barW = Math.min(46, colW*0.55);
+  byAge.forEach((a,i) => {
+    const h = a.n ? (a.rate/maxRate)*innerH : 0;
+    const x = padL + colW*i + (colW-barW)/2;
+    const y = padT + innerH - h;
+    const selected = !state.ageBand || state.ageBand === a.name;
+    const color = state.ageBand === a.name ? '#0F172A' : '#2563EB';
+    const bar = el('rect', { x, y, width:barW, height:Math.max(h,1), rx:4, fill:color, opacity: selected ? 1 : 0.32, class:'bar-shape' }, svg);
+    bar.addEventListener('mousemove', (evt) => showTip(evt, `Age ${a.name}<br/>${pct(a.rate)} default rate (${a.n} customers)`));
+    bar.addEventListener('mouseleave', hideTip);
+    bar.addEventListener('click', () => { state.ageBand = state.ageBand === a.name ? null : a.name; render(); });
+    el('text', { x:x+barW/2, y:H-6, 'text-anchor':'middle', class:'axis-text' }, svg).textContent = a.name;
+  });
+}
+
+/* ---- Income vs loan amount scatter ---- */
+function buildScatter(filtered){
+  const holder = document.getElementById('scatterChart');
+  holder.innerHTML = '';
+  const W = 420, H = 220, padL = 40, padR = 10, padT = 10, padB = 22;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const svg = el('svg', { viewBox:`0 0 ${W} ${H}`, preserveAspectRatio:'none' }, holder);
+
+  if (!filtered.length){
+    el('text', { x:W/2, y:H/2, 'text-anchor':'middle', class:'axis-text' }, svg).textContent = 'No data for current filters';
+    return;
+  }
+  const incomeMax = 160000;
+  const loanMax = niceMax(Math.max(...filtered.map(r=>r[3])) * 1.05);
+
+  [0,0.5,1].forEach(f => {
+    const y = padT + innerH*(1-f);
+    el('line', { x1:padL, x2:W-padR, y1:y, y2:y, stroke:'#EEF1F6', 'stroke-width':1 }, svg);
+    el('text', { x:padL-6, y:y+3, 'text-anchor':'end', class:'axis-text' }, svg).textContent = fmtCompact(loanMax*f);
+  });
+  [0,0.5,1].forEach(f => {
+    const x = padL + innerW*f;
+    el('text', { x, y:H-6, 'text-anchor':'middle', class:'axis-text' }, svg).textContent = fmtCompact(incomeMax*f);
+  });
+
+  filtered.forEach(r => {
+    const income = Math.min(r[2], incomeMax);
+    const x = padL + (income/incomeMax)*innerW;
+    const y = padT + innerH - (Math.min(r[3],loanMax)/loanMax)*innerH;
+    const color = r[8] ? '#EF4444' : '#10B981';
+    const dot = el('circle', { cx:x, cy:y, r:2.6, fill:color, 'fill-opacity':0.6 }, svg);
+    dot.addEventListener('mousemove', (evt) => showTip(evt, `${fmtMoney(r[2])} income<br/>${fmtMoney(r[3])} loan &middot; ${r[8] ? 'Defaulted' : 'Repaid'}`));
+    dot.addEventListener('mouseleave', hideTip);
+  });
+
+  el('text', { x:W-6, y:14, 'text-anchor':'end', class:'axis-text' }, svg).textContent = 'Income \u2192';
+  el('text', { x:padL+2, y:padT+8, class:'axis-text' }, svg).textContent = 'Loan amt \u2191';
+}
+
+/* ---------------- Main render ---------------- */
+function render(){
+  syncFilterVisuals();
+  const filtered = getFiltered();
+  const kpis = computeKPIs(filtered);
+  const byBand = computeByBand();
+  const byAge = computeByAge();
+  const byPurpose = computeByPurpose(filtered);
+
+  document.getElementById('subtitleText').textContent =
+    kpis.n.toLocaleString() + ' customers shown \u00b7 ' + pct(kpis.defaultRate) + ' default rate in selection';
+
+  renderKPIs(kpis);
+  renderInsights(byBand, byAge, byPurpose, kpis);
+  buildBandChart(byBand);
+  buildPurposeDonut(byPurpose);
+  buildAgeChart(byAge);
+  buildScatter(filtered);
+}
+
+initFilterUI();
+render();
+</script>
+</body>
+</html>
